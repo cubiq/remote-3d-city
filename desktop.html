@@ -1,0 +1,329 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0"> 
+<meta name="apple-mobile-web-app-capable" content="yes"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black"> 
+<script src="socket.io/socket.io.min.js"></script>
+<title>3D City Test</title> 
+ 
+<style type="text/css" media="all"> 
+ 
+body, html {
+	height:100%;
+}
+
+body,ul,li {
+	padding:0;
+	margin:0;
+	border:0;
+}
+
+body {
+	-webkit-user-select:none;
+    -webkit-text-size-adjust:none;
+	background:-webkit-gradient(linear, 0 0, 0 100%, from(#8f9182), to(#5b5c52)) no-repeat;
+}
+
+#wrapper {
+	position:absolute;
+	top:50%; left:50%;
+	width:700px; height:700px;
+	margin-left:-350px; margin-top:-350px;
+	-webkit-transform-style:preserve-3d;
+/*	-webkit-perspective:4000;*/
+/*	-webkit-animation-name:rotate;*/
+	-webkit-animation-duration:20s;
+	-webkit-animation-timing-function:linear;
+	-webkit-animation-iteration-count:infinite;
+	-webkit-transform-origin:50% 50% 100px;
+	-webkit-transform:translate3d(0,0,0);
+}
+
+#wrapper div {
+	position:absolute;
+/*	-webkit-backface-visibility:hidden;*/
+}
+
+#wrapper .plane {
+	width:700px; height:700px;
+	background-repeat:no-repeat !important;
+}
+
+#ground {
+	background:url(road1.jpg) 400px 0,
+		url(road1.jpg) 400px 200px,
+		url(road1.jpg) 400px 300px,
+		url(road2.jpg) 400px 400px,
+		url(road3.jpg) 300px 400px,
+		url(road3.jpg) 200px 400px,
+		url(road3.jpg) 100px 400px,
+		url(road2.jpg) 0 400px,
+		url(road1.jpg) 0 300px,
+		url(road1.jpg) 0 500px,
+		url(road1.jpg) 0 600px,
+		url(road2.jpg) 400px 100px,
+		url(road3.jpg) 300px 100px,
+		url(road3.jpg) 500px 100px,
+		url(road3.jpg) 200px 100px,
+		url(road3.jpg) 600px 100px,
+		url(road3.jpg) 100px 100px,
+		url(road2.jpg) 0 100px,
+		url(road1.jpg) 0 0,
+		url(road1.jpg) 0 200px,
+		url(grass.jpg) 200px 0,
+		url(grass.jpg) 100px 0,
+		url(grass.jpg) 300px 300px,
+		url(grass.jpg) 300px 500px,
+		url(grass.jpg) 300px 600px,
+		url(road1.jpg) 400px 600px,
+		url(road1.jpg) 400px 500px,
+		url(road3.jpg) 600px 400px,
+		url(road3.jpg) 500px 400px;
+	background-color:#bbbeaa;
+}
+
+#roof1 {
+	-webkit-transform:translate3d(0,0,100px);
+	background:url(roof1.jpg) 100% 0,
+		url(roof1.jpg) 100px 200px,
+		url(roof1.jpg) 100px 300px,
+		url(roof1.jpg) 200px 300px,
+		url(roof1.jpg) 200px 200px,
+		url(roof1.jpg) 300px 200px,
+		url(roof1.jpg) 200px 600px,
+		url(roof1.jpg) 100px 600px,
+		url(roof1.jpg) 200px 500px,
+		url(roof1.jpg) 100px 500px,
+		url(roof1.jpg) 500px 300px,
+		url(roof1.jpg) 500px 200px,
+		url(roof1.jpg) 500px 500px,
+		url(roof1.jpg) 500px 600px;
+}
+
+#roof2 {
+	-webkit-transform:translate3d(0,0,200px);
+	background:url(roof1.jpg) 500px 0,
+		url(roof1.jpg) 300px 0,
+		url(roof1.jpg) 600px 300px,
+		url(roof1.jpg) 600px 200px,
+		url(roof1.jpg) 600px 500px,
+		url(roof1.jpg) 600px 600px;
+}
+
+#wrapper .side {
+	top:0;
+	width:200px; height:700px;
+	background-repeat:no-repeat !important;
+}
+
+#wrapper .side:nth-child(odd) {
+	-webkit-transform:rotateY(90deg);
+	-webkit-transform-origin:100% 0 0;
+}
+
+#wrapper .side:nth-child(even) {
+	-webkit-transform:rotateY(-90deg) rotateZ(180deg);
+	-webkit-transform-origin:100% 50% 0;
+}
+
+#wrapper .front {
+	left:0;
+	width:700px; height:200px;
+	background-repeat:no-repeat !important;
+}
+
+#wrapper .front:nth-child(odd) {
+	-webkit-transform:rotateX(-90deg);
+	-webkit-transform-origin:0 100% 0;
+}
+
+#wrapper .front:nth-child(even) {
+	-webkit-transform:rotateX(90deg) rotateZ(180deg);
+	-webkit-transform-origin:50% 100% 0;
+}
+
+#front1 {
+	top:-200px;
+	background:url(front1.jpg) 0 100%,
+		url(front1.jpg) 100px 100%,
+		url(front1.jpg) 100px 0,
+		url(front2.jpg) 300px 100%,
+		url(front2.jpg) 300px 0;
+}
+
+#front2 {
+	top:-100px;
+	background:url(front1.jpg) 100% 100%,
+		url(front1.jpg) 500px 100%,
+		url(front1.jpg) 500px 0,
+		url(front2.jpg) 300px 100%,
+		url(front2.jpg) 300px 0;
+}
+
+#front3 {
+	top:0px;
+	background:url(front3.jpg) 500px 100%,
+		url(front3.jpg) 400px 100%,
+		url(front3.jpg) 300px 100%,
+		url(front2.jpg) 100px 100%,
+		url(front2.jpg) 0 0,
+		url(front2.jpg) 0 100%;
+}
+
+#front4 {
+	top:100px;
+	background:url(front3.jpg) 300px 100%;
+}
+
+#front5 {
+	top:200px;
+	background:url(front3.jpg) 400px 100%,
+		url(front3.jpg) 500px 100%,
+		url(front2.jpg) 0 100%,
+		url(front2.jpg) 100px 100%,
+		url(front2.jpg) 0 0;
+}
+
+#front6 {
+	top:300px;
+	background:url(front4.jpg) 100px 100%,
+		url(front4.jpg) 200px 100%,
+		url(front1.jpg) 600px 0,
+		url(front1.jpg) 600px 100%,
+		url(front1.jpg) 500px 100%;
+}
+
+#front7 {
+	top:400px;
+}
+
+#front8 {
+	top:500px;
+	background:url(front4.jpg) 100px 100%,
+		url(front4.jpg) 200px 100%,
+		url(front1.jpg) 500px 100%,
+		url(front1.jpg) 600px 100%,
+		url(front1.jpg) 600px 0;
+}
+
+
+#side1 {
+	left:-200px;
+}
+
+#side2 {
+	left:-100px;
+	background:url(side3.jpg) 100% 200px,
+		url(side3.jpg) 100% 300px,
+		url(side4.jpg) 100% 500px,
+		url(side4.jpg) 100% 600px;
+}
+
+#side3 {
+	left:0px;
+}
+
+#side4 {
+	left:100px;
+	background:url(side2.jpg) 100% 0,
+		url(side2.jpg) 0 0,
+		url(side3.jpg) 100% 300px,
+		url(side4.jpg) 100px 500px,
+		url(side4.jpg) 100px 600px;
+}
+
+#side5 {
+	left:200px;
+	background:url(side2.jpg) 100% 100%,
+		url(side2.jpg) 0 100%,
+		url(side3.jpg) 100% 400px;
+}
+
+#side6 {
+	left:300px;
+	background:url(side1.jpg) 100% 0,
+		url(side1.jpg) 0 0,
+		url(side1.jpg) 100% 500px,
+		url(side1.jpg) 100% 600px,
+		url(side2.jpg) 100% 300px,
+		url(side2.jpg) 100% 200px;
+}
+
+#side7 {
+	left:400px;
+	background:url(side1.jpg) 100% 100%,
+		url(side1.jpg) 0 100%,
+		url(side2.jpg) 0 400px,
+		url(side2.jpg) 0 300px,
+		url(side1.jpg) 0 100px,
+		url(side1.jpg) 0 0;	
+}
+
+#side8 {
+	left:500px;
+	background:url(side1.jpg) 100% 0,
+		url(side1.jpg) 100% 500px,
+		url(side1.jpg) 100% 600px,
+		url(side2.jpg) 100% 300px,
+		url(side2.jpg) 100% 200px,
+		url(side1.jpg) 0 500px,
+		url(side1.jpg) 0 600px,
+		url(side2.jpg) 0 300px,
+		url(side2.jpg) 0 200px;
+}
+
+@-webkit-keyframes rotate {
+	from { -webkit-transform: rotateX(65deg) rotateZ(0) scale3d(0.5, 0.5, 0.5); }
+	to { -webkit-transform: rotateX(65deg) rotateZ(360deg) scale3d(0.5, 0.5, 0.5); }
+}
+</style>
+<script>
+function backFace () {
+	var els = document.querySelectorAll('#wrapper div');
+	for (var i=0; i<els.length; i++) {
+		els[i].style.webkitBackfaceVisibility = els[i].style.webkitBackfaceVisibility == 'hidden' ? 'visible' : 'hidden';
+	}
+}
+</script>
+</head> 
+<body>
+<div id="wrapper">
+	<div id="ground" class="plane"></div>
+	<div id="roof1" class="plane"></div>
+	<div id="roof2" class="plane"></div>
+
+	<div id="side1" class="side"></div>
+	<div id="side2" class="side"></div>
+	<div id="side3" class="side"></div>
+	<div id="side4" class="side"></div>
+	<div id="side5" class="side"></div>
+	<div id="side6" class="side"></div>
+	<div id="side7" class="side"></div>
+	<div id="side8" class="side"></div>
+
+	<div id="front1" class="front"></div>
+	<div id="front2" class="front"></div>
+	<div id="front3" class="front"></div>
+	<div id="front4" class="front"></div>
+	<div id="front5" class="front"></div>
+	<div id="front6" class="front"></div>
+	<div id="front7" class="front"></div>
+	<div id="front8" class="front"></div>
+</div>
+
+<script>
+var socket = io.connect('http://cubiq.org:8008');
+var ready = false;
+var wrapper = document.querySelector('#wrapper');
+
+socket.on('location', function (data) {
+	console.log(wrapper);
+	wrapper.style.webkitTransform = 'rotateX(' + data.orientation.x + 'deg) rotateY(' + data.orientation.y + 'deg) rotateZ(' + data.orientation.z + 'deg) scale3d(0.5, 0.5, 0.5)';
+});
+  
+</script>
+
+</body>
+</html>

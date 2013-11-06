@@ -1,0 +1,63 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0"> 
+<meta name="apple-mobile-web-app-capable" content="yes"> 
+<meta name="apple-mobile-web-app-status-bar-style" content="black"> 
+<script src="socket.io/socket.io.min.js"></script>
+<script>
+var socket = io.connect('http://cubiq.org:8008');
+var ready = false;
+
+window.addEventListener('deviceorientation', orientationChange, false);
+
+var remote = {
+	x: 0,
+	y: 0,
+	z: 0
+};
+function orientationChange (e) {
+	remote.x = e.beta;
+	remote.y = e.gamma;
+	remote.z = e.alpha;
+}
+
+socket.on('connect', function () {
+	ready = true;
+});
+
+function sendCoords () {
+	setTimeout(sendCoords, 10);
+
+	if ( !ready ) {
+		return;
+	}
+
+	socket.emit('remoteControl', { orientation: remote });
+}
+
+sendCoords();
+
+</script>
+<title>3D City Test Remote</title> 
+ 
+<style type="text/css" media="all"> 
+ 
+body, html {
+	height:100%;
+}
+
+body,ul,li {
+	padding:0;
+	margin:0;
+	border:0;
+}
+</style>
+</head> 
+<body>
+
+Remote control
+
+</body> 
+</html>

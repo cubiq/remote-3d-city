@@ -28,7 +28,7 @@ socket.on('connect', function () {
 });
 
 function sendCoords () {
-	setTimeout(sendCoords, 250);
+	setTimeout(sendCoords, 10);
 
 	if ( !ready ) {
 		return;

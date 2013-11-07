@@ -319,7 +319,6 @@ var ready = false;
 var wrapper = document.querySelector('#wrapper');
 
 socket.on('location', function (data) {
-	console.log(wrapper);
 	wrapper.style.webkitTransform = 'rotateX(' + data.orientation.x + 'deg) rotateY(' + data.orientation.y + 'deg) rotateZ(' + data.orientation.z + 'deg) scale3d(0.5, 0.5, 0.5)';
 });
   
